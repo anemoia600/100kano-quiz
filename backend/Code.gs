@@ -1,20 +1,35 @@
 /**
- * 100그녀 이름 대기 — 랭킹 서버 (Google Apps Script)
- *
- * 쓰는 법
- * 1. 새 Google 스프레드시트를 만든다.
- * 2. 확장 프로그램 > Apps Script 를 열고, 기본 코드를 지운 뒤 이 파일 내용을 통째로 붙여 넣는다.
- * 3. 배포 > 새 배포 > 유형: 웹 앱, 실행 계정: 나, 액세스 권한: 모든 사용자 로 배포한다.
- * 4. 나온 웹 앱 URL(.../exec)을 사이트의 config.js 에 넣는다.
- *
- * 기록은 스프레드시트의 "scores" 시트에 한 줄씩 쌓인다. 이상한 기록은 그 줄을 지우면 랭킹에서도 사라진다.
+ * 100그녀 이름 대기 — 랭킹 서버 (Google Apps Script, 독립형 프로젝트)
+ * 웹 앱으로 배포한다 (실행 계정: 나, 액세스 권한: 모든 사용자). 배포 URL은 사이트의 config.js 에 넣는다.
+ * 기록은 "100그녀 이름 대기 랭킹" 스프레드시트의 scores 시트에 한 줄씩 쌓인다.
+ * 이상한 기록은 그 줄을 지우면 랭킹에서도 사라진다.
  */
 var SHEET = 'scores';
 var TOTAL = 37;          // 그녀 수. 사이트의 명단이 늘면 같이 올린다.
 var MAX_ROWS = 20000;    // 이보다 많이 쌓이면 새 기록을 받지 않는다.
 
+// 처음 한 번 실행: 스프레드시트를 만들고 주소를 돌려준다.
+function setup() {
+  var sh = sheet_();
+  var url = sh.getParent().getUrl();
+  Logger.log(url);
+  return url;
+}
+
+function book_() {
+  var p = PropertiesService.getScriptProperties();
+  var id = p.getProperty('SHEET_ID');
+  var ss = null;
+  if (id) { try { ss = SpreadsheetApp.openById(id); } catch (err) { ss = null; } }
+  if (!ss) {
+    ss = SpreadsheetApp.create('100그녀 이름 대기 랭킹');
+    p.setProperty('SHEET_ID', ss.getId());
+  }
+  return ss;
+}
+
 function sheet_() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = book_();
   var sh = ss.getSheetByName(SHEET);
   if (!sh) {
     sh = ss.insertSheet(SHEET);
