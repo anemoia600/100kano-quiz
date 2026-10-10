@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f2578c">
+<title>100그녀 이름 대기</title>
+<meta name="description" content="렌타로 패밀리 37명의 풀네임을 시간 재며 맞히는 퀴즈">
+<meta property="og:title" content="100그녀 이름 대기">
+<meta property="og:description" content="그녀 37명, 풀네임으로 전부 맞힐 수 있어?">
+<meta property="og:image" content="kv.webp">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23f2578c' d='M16 28S3 19.5 3 11a6.5 6.5 0 0 1 13-1.6A6.5 6.5 0 0 1 29 11c0 8.5-13 17-13 17z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&display=swap">
+<style>
+/* Layout: phone-first column modelled on the 100그녀 puzzle game UI; at 900px+ the title card and ranking sit side by side.
+   One look on purpose (no dark variant). */
+:root{
+  --bg:#ffffff; --ink:#7b3a4c; --dim:#b98a99; --line:#f7b4c9; --pale:#fff0f4;
+  --pink:#f2578c; --coral:#ff7d6e; --deep:#e2457b; --shade:#d63d72; --gold:#ffc53d; --on:#ffffff; --bad:#d6304f;
+  --tile-a:#def2fb; --tile-b:#ffe2ec; --num:#ec7fa6;
+  --grad:linear-gradient(90deg,var(--pink),var(--coral));
+  --round:"Jua","Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --font:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+body{margin:0;min-height:100vh;min-height:100dvh;color:var(--ink);background:var(--bg);font-family:var(--font);font-size:15px;line-height:1.5;
+  padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background-image:url("tl.webp"),url("br.webp");background-repeat:no-repeat;background-position:left top,right bottom;background-size:min(46vw,260px)}
+img{max-width:100%}
+.wrap{max-width:920px;margin:0 auto;padding-inline:16px;padding-block:18px 48px;display:flex;flex-direction:column;gap:22px}
+p{margin:0}
+button,input{font:inherit;color:inherit}
+button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+.banner{margin:0;font-family:var(--round);font-weight:400;font-size:21px;line-height:1.2;text-align:center;color:var(--on);
+  background:var(--grad);border-radius:12px;padding:9px 16px}
+.banner::before,.banner::after{content:"\2665\FE0E";font-size:.7em;vertical-align:.12em;margin:0 .8em}
+.panel{background:var(--bg);border:2px solid var(--line);border-radius:14px;padding:14px}
+.btn{font-family:var(--round);font-size:17px;line-height:1.2;border:0;border-radius:999px;padding:9px 22px;cursor:pointer;
+  background:var(--grad);color:var(--on);box-shadow:0 3px 0 var(--shade)}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--shade)}
+.btn.ghost{background:var(--bg);color:var(--deep);border:2px solid var(--line);box-shadow:0 3px 0 var(--line);padding:7px 18px}
+.btn.big{font-size:23px;padding:12px 22px;width:100%}
+.text{border:2px solid var(--line);background:var(--bg);border-radius:999px;padding:8px 16px;min-width:0;font-weight:600;font-size:16px}
+.text::placeholder{color:var(--dim);font-weight:400}
+.text:focus{border-color:var(--pink);outline:none}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+
+/* start */
+#start{display:flex;flex-direction:column;gap:14px;width:100%;max-width:440px;margin-inline:auto}
+.hero{display:block;width:100%;height:auto;border-radius:16px}
+.seg{display:flex;border:2px solid var(--line);border-radius:999px;overflow:hidden;background:var(--bg)}
+.opt{font-family:var(--round);font-size:16px;padding:7px 16px;cursor:pointer;white-space:nowrap;border-left:2px solid var(--line)}
+.opt:first-child{border-left:0}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt:has(input:checked){background:var(--grad);color:var(--on)}
+.opt:has(input:focus-visible){outline:3px solid var(--gold);outline-offset:-3px}
+
+/* play */
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:2px solid var(--line);
+  margin-inline:-16px;padding:calc(9px + env(safe-area-inset-top,0px)) 16px 9px;margin-top:calc(-1 * env(safe-area-inset-top,0px));display:flex;align-items:center;gap:8px}
+.pill{font-family:var(--round);font-size:20px;line-height:1.2;border:2px solid var(--line);border-radius:999px;padding:4px 14px;
+  background:var(--bg);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pill.count{margin-right:auto}
+.pill.count::before{content:"\2665\FE0E";color:var(--pink);margin-right:6px}
+#form,#say,#result{width:100%;max-width:560px;margin-inline:auto}
+#form{display:flex;margin-top:16px}
+#ans{flex:1;font-size:17px;padding:11px 18px}
+#ans.bad{border-color:var(--bad)}
+#say{min-height:1.5em;font-size:13px;margin-top:4px;padding-left:18px}
+#say.bad{color:var(--bad)}
+
+.wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;list-style:none;padding:0;margin:8px 0 0}
+.slot{border:2px solid var(--line);border-radius:12px;overflow:hidden;background:linear-gradient(160deg,var(--tile-a),var(--tile-b));min-width:0;display:flex;flex-direction:column}
+.slot.got,.slot.missed{background:var(--bg)}
+.slot:not(.got):not(.missed){aspect-ratio:1/1.38}
+.slot:not(.got):not(.missed) .face{aspect-ratio:auto;flex:1}
+.slot:not(.got):not(.missed) .nm{display:none}
+.face{aspect-ratio:1;display:grid;place-items:center;font-family:var(--round);font-size:26px;color:var(--num);background-repeat:no-repeat}
+.slot.got .face,.slot.missed .face{background-size:800% 500%}
+.nm{font-size:12px;font-weight:600;line-height:1.3;padding:4px 3px 5px;text-align:center;word-break:keep-all;overflow-wrap:anywhere;min-height:2.6em;flex:1}
+.slot.got{border-color:var(--pink)}
+.slot.next{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold)}
+.slot.missed .face{filter:grayscale(1);opacity:.5}
+.slot.missed .nm{color:var(--dim)}
+
+#result{margin-top:16px;background:var(--pale);display:flex;flex-direction:column;gap:8px;text-align:center;align-items:center}
+#rLine{font-family:var(--round);font-size:24px;line-height:1.2;font-variant-numeric:tabular-nums}
+#rNote{font-size:13px}
+
+/* ranking */
+#board{display:flex;flex-direction:column;gap:12px;width:100%;max-width:560px;margin-inline:auto}
+.tabs{display:flex;border:2px solid var(--line);border-radius:999px;overflow:hidden;background:var(--bg)}
+.tab{flex:1;font-family:var(--round);font-size:16px;border:0;border-left:2px solid var(--line);background:none;padding:7px 8px;cursor:pointer;color:var(--ink)}
+.tab:first-child{border-left:0}
+.tab[aria-selected="true"]{background:var(--grad);color:var(--on)}
+.rank{list-style:none;margin:0;padding:0}
+.rank li{display:grid;grid-template-columns:1.8em minmax(0,1fr) auto auto;gap:12px;align-items:baseline;padding:8px 2px;border-bottom:2px dotted var(--line);font-variant-numeric:tabular-nums}
+.rank li:last-child{border-bottom:0}
+.rank .pos{font-family:var(--round);color:var(--pink);font-size:17px}
+.rank .who{overflow-wrap:anywhere;font-weight:600}
+.rank .me{color:var(--deep)}
+#rankState{font-size:13px;color:var(--dim);text-align:center;padding:6px 0}
+
+@media (min-width:900px){
+  .wrap:has(#start:not([hidden])){display:grid;grid-template-columns:400px minmax(0,1fr);gap:36px;align-items:start;padding-block:36px 48px}
+  .wrap:has(#start:not([hidden])) #board{max-width:none}
+  .wall{grid-template-columns:repeat(auto-fill,minmax(92px,1fr))}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <section id="start">
+    <img class="hero" src="kv.webp" width="800" height="1092" alt="너를 너무너무너무너무 좋아하는 100명의 그녀">
+    <h1 class="banner">그녀 이름 대기</h1>
+    <div class="row">
+      <input class="text" id="nick" maxlength="12" autocomplete="off" placeholder="닉네임" aria-label="닉네임" style="flex:1 1 140px">
+      <div class="seg" role="radiogroup" aria-label="모드">
+        <label class="opt"><input type="radio" name="mode" id="ordered" checked>순서대로</label>
+        <label class="opt"><input type="radio" name="mode" id="free">자유</label>
+      </div>
+    </div>
+    <button class="btn big" id="go" type="button">시작</button>
+  </section>
+
+  <section id="game" hidden>
+    <div class="bar">
+      <div class="pill" id="clock" aria-label="경과 시간">00:00.0</div>
+      <div class="pill count"><span id="got">0</span> / 37</div>
+      <button class="btn ghost" id="quit" type="button">포기</button>
+      <button class="btn" id="again" type="button" hidden>다시</button>
+    </div>
+
+    <div id="result" class="panel" hidden>
+      <p id="rLine"></p>
+      <p id="rNote"></p>
+      <button class="btn ghost" id="retry" type="button" hidden>다시 등록</button>
+    </div>
+
+    <form id="form" autocomplete="off">
+      <input class="text" id="ans" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="풀네임" aria-label="풀네임">
+    </form>
+    <p id="say" aria-live="polite"></p>
+
+    <ol class="wall" id="wall"></ol>
+  </section>
+
+  <section id="board">
+    <h2 class="banner">랭킹</h2>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" type="button" data-mode="order" aria-selected="true">순서대로</button>
+      <button class="tab" role="tab" type="button" data-mode="free" aria-selected="false">자유</button>
+      <button class="tab" role="tab" type="button" data-mode="mine" aria-selected="false">내 기록</button>
+    </div>
+    <div class="panel" style="padding-block:6px">
+      <ol class="rank" id="rank"></ol>
+      <p id="rankState"></p>
+    </div>
+  </section>
+
+</div>
+
+<script src="config.js"></script>
+<script>
+(function(){
+"use strict";
+/* 합류 순서. [한국어 풀네임, 로마자(성 이름), 원어 표기, 추가 허용 표기...] */
+var GIRLS=[
+["하나조노 하카리","hanazono hakari","花園羽香里"],
+["인다 카라네","inda karane","院田唐音"],
+["요시모토 시즈카","yoshimoto shizuka","好本静","好本靜"],
+["에이아이 나노","eiai nano","栄逢凪乃"],
+["야쿠젠 쿠스리","yakuzen kusuri","薬膳楠莉"],
+["하나조노 하하리","hanazono hahari","花園羽々里"],
+["하라가 쿠루미","haraga kurumi","原賀胡桃"],
+["메이도 메이","meido mei","銘戸芽衣"],
+["스토 이쿠","suto iku","須藤育","스토우 이쿠","스도 이쿠"],
+["우츠쿠시스기 미미미","utsukushisugi mimimi","美杉美々美"],
+["카쿠레 메메","kakure meme","華暮愛々"],
+["이인 치요","iin chiyo","伊院知与"],
+["야마토 나데시코","yamato nadeshiko","大和撫子"],
+["야사시키 야마메","yasashiki yamame","優敷山女"],
+["모미 모미지","momi momiji","茂見紅葉"],
+["야쿠젠 야쿠","yakuzen yaku","薬膳ヤク"],
+["토로토로 키시카","torotoro kishika","土呂瀞騎士華"],
+["케다루이 아시","kedarui ashi","毛樽井亜愛子衣","毛樽井亞愛子衣","케다루이 아아시이","케다루이 아시이"],
+["나카지 우토","nakaji uto","中二詩人"],
+["메이도 마이","meido mai","女井戸妹"],
+["본노지 모모하","bonnoji momoha","盆能寺百八","본노우지 모모하"],
+["바이오 린","baio rin","灰尾凛"],
+["히후미 스우","hifumi su","一二三数","히후미 스","히후미 수"],
+["카호 에이라","kaho eira","火保エイラ"],
+["네코나리 타마","nekonari tama","猫成珠"],
+["사이키 히메카","saiki himeka","才奇姫歌"],
+["데이 마츠리","dei matsuri","出井祭李"],
+["우사미 시이나","usami shina","宇佐美椎奈","우사미 시나"],
+["제츠보다 메루","zetsuboda meru","雪房田夢留","제츠보우다 메루"],
+["토모가라 사키","tomogara saki","輩先"],
+["네무이 네무","nemui nemu","根向井寧夢"],
+["하스 하스하","hasu hasuha","端須蓮葉"],
+["모리키타 키마리","morikita kimari","守北季鞠"],
+["후타테 에루","futate eru","双天彗流"],
+["지아이 치유","jiai chiyu","慈相千優"],
+["미시로 코고에","mishiro kogoe","三白小々枝"],
+["후시다 라나","fushida rana","伏田蘭那"]
+];
+var N=GIRLS.length;
+var SPRITE="faces.webp"; /* 8열 x 5행, 합류 순서 */
+var API=String(window.HK_API||"").trim(); /* config.js 에서 설정하는 랭킹 서버 주소 */
+
+function norm(s){
+  s=String(s||"").normalize("NFKC").toLowerCase();
+  s=s.replace(/[\s　·・,.'’`\-_]/g,"");
+  s=s.replace(/[āâ]/g,"a").replace(/[īî]/g,"i").replace(/[ūû]/g,"u").replace(/[ēê]/g,"e").replace(/[ōô]/g,"o");
+  if(/^[a-z]+$/.test(s)) s=s.replace(/ou/g,"o").replace(/oo/g,"o").replace(/uu/g,"u").replace(/ii/g,"i").replace(/aa/g,"a");
+  s=s.replace(/쓰/g,"츠").replace(/죠/g,"조").replace(/쵸/g,"초").replace(/쥬/g,"주").replace(/츄/g,"추").replace(/쟈/g,"자").replace(/챠/g,"차");
+  return s;
+}
+var KEY={};
+GIRLS.forEach(function(g,i){
+  g.forEach(function(v){
+    KEY[norm(v)]=i;
+    var p=v.split(/\s+/); if(p.length===2) KEY[norm(p[1]+p[0])]=i;
+  });
+});
+
+var $=function(id){return document.getElementById(id)};
+var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+        set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function fmt(ms){var t=Math.max(0,Math.floor(ms/100)),d=t%10,s=Math.floor(t/10)%60,m=Math.floor(t/600);
+  return (m<10?"0":"")+m+":"+(s<10?"0":"")+s+"."+d}
+function modeName(m){return m==="order"?"순서대로":"자유"}
+
+/* ---------- game ---------- */
+var st=null,tick=0;
+function buildWall(){
+  var w=$("wall");w.textContent="";
+  GIRLS.forEach(function(g,i){
+    var li=document.createElement("li");li.className="slot";li.id="s"+i;
+    var f=document.createElement("div");f.className="face";f.textContent=String(i+1);
+    var nm=document.createElement("div");nm.className="nm";
+    li.append(f,nm);w.appendChild(li);
+  });
+}
+function reveal(i,cls){
+  var li=$("s"+i);li.classList.remove("next");li.classList.add(cls);
+  var f=li.querySelector(".face");f.textContent="";
+  f.setAttribute("role","img");f.setAttribute("aria-label",GIRLS[i][0]);
+  f.style.backgroundImage='url("'+SPRITE+'")';
+  f.style.backgroundPosition=((i%8)/7*100)+"% "+(Math.floor(i/8)/4*100)+"%";
+  li.querySelector(".nm").textContent=GIRLS[i][0];
+}
+function markNext(){
+  document.querySelectorAll(".slot.next").forEach(function(e){e.classList.remove("next")});
+  if(st&&st.live&&st.mode==="order"&&st.n<N) $("s"+st.n).classList.add("next");
+}
+function say(text,bad){var el=$("say");el.textContent=text;el.className=bad?"bad":"";$("ans").classList.toggle("bad",!!bad)}
+function start(){
+  var nick=$("nick").value.trim().slice(0,12);LS.set("hk.nick",nick);
+  var mode=$("ordered").checked?"order":"free";LS.set("hk.mode",mode);
+  st={mode:mode,nick:nick||"익명",found:new Array(N).fill(false),n:0,t0:performance.now(),live:true,ms:0};
+  $("start").hidden=true;$("game").hidden=false;$("result").hidden=true;$("form").hidden=false;$("say").hidden=false;
+  $("quit").hidden=false;$("again").hidden=true;disarm();
+  buildWall();$("got").textContent="0";markNext();say("");
+  $("clock").textContent="00:00.0";clearInterval(tick);
+  tick=setInterval(function(){if(st&&st.live)$("clock").textContent=fmt(performance.now()-st.t0)},100);
+  window.scrollTo(0,0);
+  $("ans").value="";$("ans").focus();
+  setTab(mode);
+}
+function clearAns(){var a=$("ans");a.blur();a.value="";a.focus()}
+function tryAnswer(explicit){
+  if(!st||!st.live)return;
+  var k=norm($("ans").value);if(!k){say("");return}
+  var i=KEY[k];
+  if(i===undefined){ if(explicit)say("오답",true);else say(""); return; }
+  if(st.found[i]){ if(explicit){clearAns();say("이미 입력함",true)} return; }
+  if(st.mode==="order"&&i!==st.n){ if(explicit)say("지금은 "+(st.n+1)+"번 차례",true); return; }
+  st.found[i]=true;st.n++;
+  reveal(i,"got");$("got").textContent=String(st.n);markNext();clearAns();say("");
+  if(st.n===N)finish(true);
+}
+function disarm(){$("quit").dataset.armed="0";$("quit").textContent="포기"}
+var lastRec=null;
+function finish(done){
+  st.live=false;st.ms=Math.round(performance.now()-st.t0);clearInterval(tick);
+  $("clock").textContent=fmt(st.ms);
+  for(var i=0;i<N;i++) if(!st.found[i]) reveal(i,"missed");
+  markNext();
+  $("form").hidden=true;$("say").hidden=true;$("quit").hidden=true;$("again").hidden=false;
+  if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
+  var rec={name:st.nick,mode:st.mode,count:st.n,ms:st.ms,done:!!done,at:new Date().toISOString()};
+  $("rLine").textContent=st.n+" / "+N+" · "+fmt(st.ms)+" · "+modeName(st.mode);
+  $("result").hidden=false;
+  var mine=LS.get("hk.records",[]);if(!Array.isArray(mine))mine=[];
+  mine.unshift(rec);LS.set("hk.records",mine.slice(0,30));
+  lastRec=rec;post(rec);renderBoard();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ---------- 랭킹 ---------- */
+function clean(d){
+  if(!d||typeof d!=="object")return null;
+  var name=typeof d.name==="string"?d.name.trim().slice(0,12):"";
+  var count=Number(d.count),ms=Number(d.ms);
+  if(!name||(d.mode!=="order"&&d.mode!=="free"))return null;
+  if(!Number.isInteger(count)||count<0||count>N||!isFinite(ms)||ms<0)return null;
+  return {name:name,mode:d.mode,count:count,ms:Math.round(ms),done:count===N&&!!d.done,at:typeof d.at==="string"?d.at.slice(0,30):""};
+}
+var rows=[],boardMode="order",net=API?"loading":"off"; /* off | loading | ok | error */
+function better(a,b){return a.count!==b.count?b.count-a.count:a.ms-b.ms}
+function rankItem(pos,label,r,me){
+  var li=document.createElement("li");
+  var p=document.createElement("span");p.className="pos";p.textContent=String(pos);
+  var w=document.createElement("span");w.className="who"+(me?" me":"");w.textContent=label;
+  var c=document.createElement("span");c.textContent=r.count+" / "+N;
+  var m=document.createElement("span");m.textContent=fmt(r.ms);
+  li.append(p,w,c,m);return li;
+}
+function renderBoard(){
+  var ol=$("rank"),s=$("rankState");ol.textContent="";
+  if(boardMode==="mine"){
+    var mine=LS.get("hk.records",[]);if(!Array.isArray(mine))mine=[];
+    var ok=mine.map(clean).filter(Boolean).slice(0,15);
+    ok.forEach(function(r,i){ol.appendChild(rankItem(i+1,modeName(r.mode)+(r.at?" "+r.at.slice(5,10).replace("-","/"):""),r,false))});
+    s.textContent=ok.length?"":"기록 없음";
+  }else{
+    var best={};
+    rows.forEach(function(r){if(r.mode!==boardMode)return;if(!best[r.name]||better(r,best[r.name])<0)best[r.name]=r});
+    var list=Object.keys(best).map(function(k){return best[k]}).sort(better).slice(0,50);
+    var myNick=(LS.get("hk.nick","")||"").trim();
+    list.forEach(function(r,i){ol.appendChild(rankItem(i+1,r.name,r,r.name===myNick))});
+    if(list.length) s.textContent="";
+    else s.textContent=net==="off"?"랭킹 준비 중":net==="loading"?"불러오는 중":net==="error"?"랭킹을 불러오지 못했어요":"기록 없음";
+  }
+  s.hidden=!s.textContent;
+}
+function setTab(m){boardMode=m;document.querySelectorAll(".tab").forEach(function(t){t.setAttribute("aria-selected",String(t.dataset.mode===m))});renderBoard()}
+function load(){
+  if(!API)return Promise.resolve();
+  return fetch(API,{method:"GET",redirect:"follow",cache:"no-store"}).then(function(r){return r.json()}).then(function(j){
+    if(!j||!Array.isArray(j.rows))throw new Error("bad");
+    rows=j.rows.map(clean).filter(Boolean);net="ok";renderBoard();
+  }).catch(function(){net="error";renderBoard()});
+}
+function note(text,retry){$("rNote").textContent=text;$("rNote").hidden=!text;$("retry").hidden=!retry}
+function post(rec){
+  if(!API){note("내 기록에 저장됨",false);return}
+  note("랭킹 등록 중",false);
+  fetch(API,{method:"POST",redirect:"follow",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(rec)})
+  .then(function(r){return r.json()}).then(function(j){
+    if(!j||!j.ok)throw new Error("rejected");
+    note("랭킹 등록됨",false);rows.push(rec);net="ok";renderBoard();load();
+  }).catch(function(){note("랭킹 등록 실패. 내 기록에는 저장됨",true)});
+}
+
+/* ---------- wiring ---------- */
+$("nick").value=LS.get("hk.nick","")||"";
+$("ordered").checked=LS.get("hk.mode","order")!=="free";$("free").checked=!$("ordered").checked;
+$("go").addEventListener("click",start);
+$("nick").addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.isComposing)start()});
+$("form").addEventListener("submit",function(e){e.preventDefault();tryAnswer(true)});
+$("ans").addEventListener("input",function(){tryAnswer(false)});
+$("quit").addEventListener("click",function(){
+  var q=$("quit");
+  if(q.dataset.armed==="1"){finish(false);return}
+  q.dataset.armed="1";q.textContent="포기 확인";setTimeout(disarm,3000);
+});
+$("again").addEventListener("click",function(){$("game").hidden=true;$("start").hidden=false;st=null;window.scrollTo(0,0);load()});
+$("retry").addEventListener("click",function(){if(lastRec)post(lastRec)});
+document.querySelectorAll(".tab").forEach(function(t){t.addEventListener("click",function(){setTab(t.dataset.mode);if(net==="error"&&t.dataset.mode!=="mine"){net="loading";renderBoard();load()}})});
+new Image().src=SPRITE;
+renderBoard();load();
+})();
+</script>
+</body>
+</html>
