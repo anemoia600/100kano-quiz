@@ -1,6 +1,6 @@
 # 100그녀 이름 대기
 
-렌타로 패밀리 37명의 풀네임을 시간 재며 맞히는 팬메이드 퀴즈.
+렌타로 패밀리 38명의 풀네임을 시간 재며 맞히는 팬메이드 퀴즈.
 
 - 사이트: https://anemoia600.github.io/100kano-quiz/
 - 랭킹 서버: Google Apps Script (`backend/Code.gs`), 주소는 `config.js`

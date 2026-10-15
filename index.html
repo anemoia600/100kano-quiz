@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f2578c">
 <title>100그녀 이름 대기</title>
-<meta name="description" content="렌타로 패밀리 37명의 풀네임을 시간 재며 맞히는 퀴즈">
+<meta name="description" content="렌타로 패밀리 38명의 풀네임을 시간 재며 맞히는 퀴즈">
 <meta property="og:title" content="100그녀 이름 대기">
-<meta property="og:description" content="그녀 37명, 풀네임으로 전부 맞힐 수 있어?">
+<meta property="og:description" content="그녀 38명, 풀네임으로 전부 맞힐 수 있어?">
 <meta property="og:image" content="kv.webp">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23f2578c' d='M16 28S3 19.5 3 11a6.5 6.5 0 0 1 13-1.6A6.5 6.5 0 0 1 29 11c0 8.5-13 17-13 17z'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -64,17 +64,18 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .opt:has(input:focus-visible){outline:3px solid var(--gold);outline-offset:-3px}
 
 /* play */
-.bar{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:2px solid var(--line);
-  margin-inline:-16px;padding:calc(9px + env(safe-area-inset-top,0px)) 16px 9px;margin-top:calc(-1 * env(safe-area-inset-top,0px));display:flex;align-items:center;gap:8px}
+.dock{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:2px solid var(--line);
+  margin-inline:-16px;padding:calc(9px + env(safe-area-inset-top,0px)) 16px 4px;margin-top:calc(-1 * env(safe-area-inset-top,0px))}
+.bar{display:flex;align-items:center;gap:8px;padding-bottom:5px}
 .pill{font-family:var(--round);font-size:20px;line-height:1.2;border:2px solid var(--line);border-radius:999px;padding:4px 14px;
   background:var(--bg);font-variant-numeric:tabular-nums;white-space:nowrap}
 .pill.count{margin-right:auto}
 .pill.count::before{content:"\2665\FE0E";color:var(--pink);margin-right:6px}
 #form,#say,#result{width:100%;max-width:560px;margin-inline:auto}
-#form{display:flex;margin-top:16px}
+#form{display:flex;margin-top:6px}
 #ans{flex:1;font-size:17px;padding:11px 18px}
 #ans.bad{border-color:var(--bad)}
-#say{min-height:1.5em;font-size:13px;margin-top:4px;padding-left:18px}
+#say{min-height:1.5em;font-size:13px;margin-top:2px;padding-left:18px}
 #say.bad{color:var(--bad)}
 
 .wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;list-style:none;padding:0;margin:8px 0 0}
@@ -134,11 +135,17 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
   </section>
 
   <section id="game" hidden>
-    <div class="bar">
-      <div class="pill" id="clock" aria-label="경과 시간">00:00.0</div>
-      <div class="pill count"><span id="got">0</span> / 37</div>
-      <button class="btn ghost" id="quit" type="button">포기</button>
-      <button class="btn" id="again" type="button" hidden>다시</button>
+    <div class="dock">
+      <div class="bar">
+        <div class="pill" id="clock" aria-label="경과 시간">00:00.0</div>
+        <div class="pill count"><span id="got">0</span> / <span id="total">38</span></div>
+        <button class="btn ghost" id="quit" type="button">포기</button>
+        <button class="btn" id="again" type="button" hidden>다시</button>
+      </div>
+      <form id="form" autocomplete="off">
+        <input class="text" id="ans" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="풀네임" aria-label="풀네임">
+      </form>
+      <p id="say" aria-live="polite"></p>
     </div>
 
     <div id="result" class="panel" hidden>
@@ -146,11 +153,6 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
       <p id="rNote"></p>
       <button class="btn ghost" id="retry" type="button" hidden>다시 등록</button>
     </div>
-
-    <form id="form" autocomplete="off">
-      <input class="text" id="ans" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="풀네임" aria-label="풀네임">
-    </form>
-    <p id="say" aria-live="polite"></p>
 
     <ol class="wall" id="wall"></ol>
   </section>
@@ -198,7 +200,7 @@ var GIRLS=[
 ["메이도 마이","meido mai","女井戸妹"],
 ["본노지 모모하","bonnoji momoha","盆能寺百八","본노우지 모모하"],
 ["바이오 린","baio rin","灰尾凛"],
-["히후미 스우","hifumi su","一二三数","히후미 스","히후미 수"],
+["히후미 스우","hifumi suu","一二三数"],
 ["카호 에이라","kaho eira","火保エイラ"],
 ["네코나리 타마","nekonari tama","猫成珠"],
 ["사이키 히메카","saiki himeka","才奇姫歌"],
@@ -212,10 +214,12 @@ var GIRLS=[
 ["후타테 에루","futate eru","双天彗流"],
 ["지아이 치유","jiai chiyu","慈相千優"],
 ["미시로 코고에","mishiro kogoe","三白小々枝"],
-["후시다 라나","fushida rana","伏田蘭那"]
+["후시다 라나","fushida rana","伏田蘭那"],
+["누레미 스이무","nuremi suimu"]
 ];
 var N=GIRLS.length;
 var SPRITE="faces.webp"; /* 8열 x 5행, 합류 순서 */
+document.getElementById("total").textContent=String(GIRLS.length);
 var API=String(window.HK_API||"").trim(); /* config.js 에서 설정하는 랭킹 서버 주소 */
 
 function norm(s){
@@ -278,7 +282,7 @@ function start(){
   $("ans").value="";$("ans").focus();
   setTab(mode);
 }
-function clearAns(){var a=$("ans");a.blur();a.value="";a.focus()}
+function clearAns(){var a=$("ans");a.blur();a.value="";a.focus({preventScroll:true})}
 function tryAnswer(explicit){
   if(!st||!st.live)return;
   var k=norm($("ans").value);if(!k){say("");return}

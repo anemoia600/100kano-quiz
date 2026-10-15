@@ -5,7 +5,7 @@
  * 이상한 기록은 그 줄을 지우면 랭킹에서도 사라진다.
  */
 var SHEET = 'scores';
-var TOTAL = 37;          // 그녀 수. 사이트의 명단이 늘면 같이 올린다.
+var TOTAL = 100;         // 맞힐 수 있는 최대 인원. 그녀가 늘어도 서버는 고칠 필요 없다.
 var MAX_ROWS = 20000;    // 이보다 많이 쌓이면 새 기록을 받지 않는다.
 
 // 처음 한 번 실행: 스프레드시트를 만들고 주소를 돌려준다.
@@ -67,7 +67,7 @@ function doGet() {
       var key = mode + '\n' + name;
       var b = best[key];
       if (!b || count > b.count || (count === b.count && ms < b.ms)) {
-        best[key] = { name: name, mode: mode, count: count, ms: ms, done: count === TOTAL,
+        best[key] = { name: name, mode: mode, count: count, ms: ms, done: v[5] === true,
                       at: v[0] instanceof Date ? v[0].toISOString() : String(v[0]) };
       }
     }
@@ -100,7 +100,7 @@ function doPost(e) {
   try {
     var sh = sheet_();
     if (sh.getLastRow() > MAX_ROWS) return json_({ ok: false, error: 'full' });
-    sh.appendRow([new Date(), name, mode, count, ms, count === TOTAL]);
+    sh.appendRow([new Date(), name, mode, count, ms, !!(d && d.done)]);
   } finally {
     lock.releaseLock();
   }
